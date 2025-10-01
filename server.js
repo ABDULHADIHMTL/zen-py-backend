@@ -8,11 +8,18 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Improved CORS configuration
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: [
+    'https://zen-py.com',
+    'https://www.zen-py.com',
+    'http://localhost:3000'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -22,6 +29,9 @@ app.use(express.static(path.join(__dirname, '../build')));
 // API Routes
 app.use('/api/enquire', enquireRoutes);
 app.use('/api/auth', authRoutes);
+
+// Handle preflight requests
+app.options('*', cors());
 
 // Root route
 app.get('/', (req, res) => {
