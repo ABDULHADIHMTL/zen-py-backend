@@ -2,10 +2,20 @@ const express = require('express');
 const db = require('../database');
 const router = express.Router();
 
-// POST - Save enquiry (Public)
+// POST - Save enquiry (handles both form formats)
 router.post('/', (req, res) => {
-  const { name, email, phone, company, message } = req.body;
+  let { name, firstName, lastName, email, phone, mobile, company, message } = req.body;
   
+  // Handle contact form format (firstName + lastName)
+  if (firstName && lastName) {
+    name = `${firstName} ${lastName}`;
+  }
+  
+  // Handle mobile field from contact form
+  if (mobile && !phone) {
+    phone = mobile;
+  }
+
   // Input validation
   if (!name || !email || !message) {
     return res.status(400).json({ error: 'Name, email, and message are required' });
@@ -32,21 +42,5 @@ router.post('/', (req, res) => {
     });
   });
 });
-
-// GET - Retrieve all enquiries (Protected - should be in auth routes)
-// COMMENT OUT or REMOVE this route as it's duplicated in auth.js
-/*
-router.get('/', (req, res) => {
-  const sql = "SELECT * FROM enquiries ORDER BY created_at DESC";
-  
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: 'Failed to fetch enquiries' });
-    }
-    res.json(rows);
-  });
-});
-*/
 
 module.exports = router;
